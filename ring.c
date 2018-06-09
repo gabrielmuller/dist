@@ -14,7 +14,7 @@ int rank;
  */
 void work (int val) {
     sleep(1);
-    printf("Trabalhando @ proc %d: %lu\n", rank, val);
+    printf("Trabalhando @ proc %d: %d\n", rank, val);
     fflush(stdout);
 }
 
@@ -56,9 +56,3 @@ int main (int argc, char** argv) {
     MPI_Finalize();
     return 0;
 }
-
-/*
-all:
-	mpicc dist.c -o dist.o
-	mpiexec -np 4 ./dist.o
-*/
