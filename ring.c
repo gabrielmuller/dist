@@ -1,3 +1,10 @@
+/*
+ * ring.c
+ * Ilustra um protocolo de anel com token.
+ * Note na saída que a ordem dos processos trabalhando na região
+ * crítica é sempre 01230123..., na ordem em que circula o token,
+ * enquanto o trabalho local é feito em qualquer ordem.
+ */
 #include <mpi.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -10,14 +17,28 @@ int rank;
 
 /*
  * Trabalha numa região crítica.
- * Ex: escrever num buffer de saída
  */
-void work (int val) {
-    sleep(1);
-    printf("Trabalhando @ proc %d: %d\n", rank, val);
+void work_critical (int val) {
+    usleep(1000000);
+    printf("Trabalhando em região crítica proc %d: %d\n", rank, val);
     fflush(stdout);
 }
 
+/*
+ * Trabalha localmente enquanto não tem o token.
+ */
+void work_local (MPI_Request* req) {
+    int flag;
+    MPI_Status status;
+    MPI_Test(req, &flag, &status);
+
+    while (!flag) {
+        MPI_Test(req, &flag, &status);
+        usleep(500000);
+        printf("Processo %d trabalhando em região não-crítica...\n", rank);
+    }
+}
+        
 /*
  * Passa o token para o próximo processo.
  */
@@ -31,7 +52,9 @@ void yield_token (int token) {
  */
 int recv_token () {
     int token;
-    MPI_Recv(&token, 1, MPI_INT, prev(rank), 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    MPI_Request req;
+    MPI_Irecv(&token, 1, MPI_INT, prev(rank), 0, MPI_COMM_WORLD, &req);
+    work_local(&req);
     return token;
 }
 
@@ -48,7 +71,7 @@ int main (int argc, char** argv) {
 
     for(;;) {
         int token = recv_token();
-        work(token);
+        work_critical(token);
         yield_token(++token);
     }
 
