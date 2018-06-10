@@ -19,9 +19,8 @@ int rank;
  * Trabalha numa região crítica.
  */
 void work_critical (int val) {
-    usleep(1000000);
     printf("Trabalhando em região crítica proc %d: %d\n", rank, val);
-    fflush(stdout);
+    usleep(1000000);
 }
 
 /*
@@ -29,13 +28,12 @@ void work_critical (int val) {
  */
 void work_local (MPI_Request* req) {
     int flag;
-    MPI_Status status;
-    MPI_Test(req, &flag, &status);
+    MPI_Test(req, &flag, MPI_STATUS_IGNORE);
 
     while (!flag) {
-        MPI_Test(req, &flag, &status);
-        usleep(500000);
+        MPI_Test(req, &flag, MPI_STATUS_IGNORE);
         printf("Processo %d trabalhando em região não-crítica...\n", rank);
+        usleep(500000);
     }
 }
         

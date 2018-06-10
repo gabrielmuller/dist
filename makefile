@@ -1,6 +1,6 @@
 # make P=nome
 
-P = ring
+P = multicast
 
 all:
 	mpicc $(P).c -o $(P).o
