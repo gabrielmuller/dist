@@ -1,9 +1,16 @@
 # make P=nome
 
-P = multicast
+P = ring
+#DEBUG=-DDEBUG
 
 all:
-	mpicc $(P).c -o $(P).o
+	# Se não houver slots suficientes, use 'make oversubscribe'.
+	mpicc $(DEBUG) $(P).c -o $(P).o
 	mpiexec -np 4 ./$(P).o
 install:
 	sudo apt install openmpi-bin libopenmpi-dev
+oversubscribe:
+	mpicc $(DEBUG) $(P).c -o $(P).o
+	mpiexec --map-by socket:OVERSUBSCRIBE -np 4 ./$(P).o 
+
+
