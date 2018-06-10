@@ -1,6 +1,8 @@
 #include <mpi.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <time.h>
+#include <stdlib.h>
 
 #include "queue.c"
 
@@ -18,6 +20,17 @@ void work_critical (int val) {
     usleep(1000000);
     printf("Trabalhando em região crítica proc %d: %d\n", rank, val);
     fflush(stdout);
+}
+
+/*
+ * Trabalha localmente.
+ */
+void work_local (int time) {
+    sleep(time);
+    #ifdef DEBUG
+    printf("Processo %d trabalhando em região não-crítica...\n", rank);
+    fflush(stdout);
+    #endif
 }
 
 /*
@@ -139,6 +152,8 @@ void leader () {
 }
 
 int main (int argc, char** argv) {
+    srand(time(NULL));
+
     // Inicia MPI
     MPI_Init(NULL, NULL);
     MPI_Comm_size(MPI_COMM_WORLD, &proc_n);
@@ -161,10 +176,11 @@ int main (int argc, char** argv) {
 
     for(;;) {
         if (rank != 0) {
+            work_local(rand() % 10);
             request_access();
             int token = recv_token();
             work_critical(token);
-            yield_token(++token);
+            yield_token(++token); 
         }
     }
 
