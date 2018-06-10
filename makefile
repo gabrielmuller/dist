@@ -5,8 +5,8 @@ P = ring
 
 all:
 	# Se não houver slots suficientes, use 'make oversubscribe'.
-	mpicc $(P).c -o $(P).o
-	mpiexec $(DEBUG) -np 4 ./$(P).o
+	mpicc $(DEBUG) $(P).c -o $(P).o
+	mpiexec -np 4 ./$(P).o
 install:
 	sudo apt install openmpi-bin libopenmpi-dev
 oversubscribe:
