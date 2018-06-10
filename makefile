@@ -4,13 +4,13 @@ P = ring
 #DEBUG=-DDEBUG
 
 all:
+	# Se não houver slots suficientes, use 'make oversubscribe'.
 	mpicc $(P).c -o $(P).o
-	mpiexec -np 4 ./$(P).o
+	mpiexec $(DEBUG) -np 4 ./$(P).o
 install:
 	sudo apt install openmpi-bin libopenmpi-dev
 oversubscribe:
-	# Quando não houver slots suficientes
 	mpicc $(DEBUG) $(P).c -o $(P).o
-	mpirun --map-by socket:OVERSUBSCRIBE -np 5 ./$(P).o 
+	mpiexec --map-by socket:OVERSUBSCRIBE -np 4 ./$(P).o 
 
 
