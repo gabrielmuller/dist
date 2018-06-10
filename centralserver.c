@@ -14,7 +14,6 @@ int rank;
 
 /*
  * Trabalha numa região crítica.
- * Ex: escrever num buffer de saída
  */
 void work_critical (int val) {
     usleep(1000000);
